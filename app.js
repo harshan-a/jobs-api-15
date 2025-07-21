@@ -43,11 +43,11 @@ app.use(cors({
 app.use(xss());
 
 
-app.get("/", (req, res) => {
-  // console.log(req.get("origin"));
-  console.log(req.header("Origin"));
-  res.send("hello, world!!!");
-})
+// app.get("/", (req, res) => {
+//   // console.log(req.get("origin"));
+//   console.log(req.header("Origin"));
+//   res.send("hello, world!!!");
+// })
 
 
 // routers
