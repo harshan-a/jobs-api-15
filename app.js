@@ -27,7 +27,7 @@ const jobsRouter = require("./routers/jobsRouter");
 
 // common middlewares
 app.use(express.json());
-// app.use(express.static("path"))
+app.use(express.static("./public"));
 
 
 // security middlewares
