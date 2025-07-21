@@ -1,0 +1,62 @@
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "example2@gmail.com",
+  "password": "app"
+}
+
+###
+POST http://localhost:5000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "_name",
+  "email": "example12@gmail.com",
+  "password": "app"
+}
+
+
+
+// Get all jobs
+### 
+GET http://localhost:5000/api/v1/jobs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODc2N2ExMzkxYjUyMmNjMDQ1NDM1YmIiLCJ1c2VyTmFtZSI6Il9uYW1lMSIsImlhdCI6MTc1Mjk4ODA5OCwiZXhwIjoxNzUzMDc0NDk4fQ.8xkvLWOuF-SOuio5f-Gujmn5OVfwbyJYvZw7B2ZoVSU
+
+
+// Create job
+###
+POST http://localhost:5000/api/v1/jobs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODc2NTIwYTRmOWQzMjBjZTBiZjBhM2YiLCJ1c2VyTmFtZSI6Il9uYW1lIiwiaWF0IjoxNzUyOTg3Mzk5LCJleHAiOjE3NTMwNzM3OTl9.ZrZ6M9VEJqKZlqRWIuIy9NzxcSUcv797nYJ6JCUcVvY
+
+
+{
+  "company": "snap chat",
+  "position": "UI/UX designer"
+}
+
+
+// Get job
+###
+GET http://localhost:5000/api/v1/jobs/68767a1391b522cc045435bb
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODc2N2ExMzkxYjUyMmNjMDQ1NDM1YmIiLCJ1c2VyTmFtZSI6Il9uYW1lMSIsImlhdCI6MTc1Mjk4ODA5OCwiZXhwIjoxNzUzMDc0NDk4fQ.8xkvLWOuF-SOuio5f-Gujmn5OVfwbyJYvZw7B2ZoVSU
+
+
+// Update job
+###
+PATCH http://localhost:5000/api/v1/jobs/68791261b8a7aa5db9c870e8
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODc2NzYyYjVjNGJhYTA5NWI1M2VmYWMiLCJ1c2VyTmFtZSI6Il9uYW1lMSIsImlhdCI6MTc1Mjc2NDk4NCwiZXhwIjoxNzUyODUxMzg0fQ.hCVoCBlEuIC2F3DRPlBThujKydq9_sl1shIZr6xapM0
+
+
+{
+  "company": "snap_chat",
+  "position": "UI/UX designer"
+}
+
+
+// Delete job
+###
+DELETE http://localhost:5000/api/v1/jobs/687910a48e42a5abd5111ccc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODc2N2VhNjMzNWY2OTkyNTc2YjkwMTgiLCJ1c2VyTmFtZSI6Il9uYW1lMSIsImlhdCI6MTc1Mjc2Njg0MSwiZXhwIjoxNzUyODUzMjQxfQ.DLZG7nidCV1jLE-Ypc1AJ2SGKZ-47b_Ofpli6OF0AEY
