@@ -1,0 +1,19 @@
+# Exported from Render on 2025-07-22T00:35:02Z
+services:
+- type: web
+  name: jobs-api
+  runtime: node
+  repo: https://github.com/harshan-a/jobs-api-15
+  plan: free
+  envVars:
+  - key: JWT_LIFETIME
+    sync: false
+  - key: JWT_SECRET_KEY
+    sync: false
+  - key: MONGO_URI
+    sync: false
+  region: singapore
+  buildCommand: npm install
+  startCommand: npm start
+  autoDeployTrigger: "off"
+version: "1"
