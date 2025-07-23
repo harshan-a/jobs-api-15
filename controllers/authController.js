@@ -35,7 +35,7 @@ const register = async (req, res) => {
 
   // console.log(user.getName());
 
-  res.status(StatusCodes.CREATED).json({success: true, token, data: user});
+  res.status(StatusCodes.CREATED).json({success: true, token, data: user, msg: "Registered Successfully"});
 }
 
 
@@ -55,7 +55,7 @@ const login = async (req, res) => {
 
   const token = user.createJWTToken();
 
-  res.status(StatusCodes.OK).json({success: true, token, data: user});
+  res.status(StatusCodes.OK).json({success: true, token, data: user, msg: "Logged in Successfully"});
 }
 
 module.exports = {login, register};

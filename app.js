@@ -17,7 +17,7 @@ const connectDB = require("./db/connect");
 const swaggerUi = require("swagger-ui-express");
 const YAML = require("yamljs");
 const swaggerDocument = YAML.load("./swagger.yaml");
-console.log(swaggerDocument);
+// console.log(swaggerDocument);
 
 
 // import middleware

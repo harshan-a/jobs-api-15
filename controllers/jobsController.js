@@ -8,7 +8,7 @@ const createJob = async (req, res) => {
   req.body.createdBy = req.user.userId;
 
   const job = await Job.create(req.body);
-  res.status(StatusCodes.CREATED).json({data: job});
+  res.status(StatusCodes.CREATED).json({data: job, msg: "Job Created."});
 }
 
 const getAllJobs = async (req, res) => {
@@ -55,7 +55,7 @@ const updateJob = async (req, res) => {
 
   res
     .status(StatusCodes.OK)
-    .json({success: true, data: job});
+    .json({success: true, data: job, msg: "Job Updated."});
   
 }
 
@@ -75,7 +75,7 @@ const deleteJob = async (req, res) => {
 
   res
     .status(StatusCodes.OK)
-    .json({success: true, data: job});
+    .json({success: true, data: job, msg: "Job Deleted."});
 }
 
 module.exports = {
