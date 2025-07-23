@@ -10,7 +10,7 @@ const authorizationMiddleware = async (req, res, next) => {
   if(!token) 
     throw new UnauthorizedError("No token Found");
 
-  console.log(token);
+  // console.log(token);
 
   try {
     const payLoad = jwt.verify(token, process.env.JWT_SECRET_KEY);

@@ -1,5 +1,5 @@
 require("dotenv").config();
-require("./models/jobModel");
+// require("./models/jobModel");
 
 const express = require("express");
 
@@ -13,6 +13,12 @@ const rateLimiter = require("express-rate-limit");
 const app = express();
 const PORT = process.env.PORT || 5000;
 const connectDB = require("./db/connect");
+
+const swaggerUi = require("swagger-ui-express");
+const YAML = require("yamljs");
+const swaggerDocument = YAML.load("./swagger.yaml");
+console.log(swaggerDocument);
+
 
 // import middleware
 const errorHandlerMiddleware = require("./middleware/errorhandler");
@@ -31,28 +37,31 @@ app.use(express.static("./public"));
 
 
 // security middlewares
-app.use(rateLimiter({
-  windowMS: 10 * 60 * 1000, // 10 min
-  max: 5, // allow only 5 req for each IP within 10min;
-}))
+// app.use(rateLimiter({
+//   windowMS: 10 * 60 * 1000, // 10 min
+//   max: 5, // allow only 5 req for each IP within 10min;
+// }))
 app.use(helmet()); // enhance security by setting various HTTP headers;
 app.use(cors({
-  origin: "http://localhost:4000"
+  origin: ["http://localhost:4000", "https://jobs-api-15.onrender.com"]
 })) // allow server to server communication;
 // app.use(xssClean()); // sanitize the user input such as req.body, req.params, req.query, req.header and so on to prevent from cross-site-scripting(xss). But this xss-clean lib is no longer supported, so we use express-xss-sanitizer;
 app.use(xss());
 
 
-// app.get("/", (req, res) => {
+// app.get("/hello", (req, res) => {
 //   // console.log(req.get("origin"));
 //   console.log(req.header("Origin"));
 //   res.send("hello, world!!!");
 // })
 
-
 // routers
 app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/jobs", authorizationMiddleware, jobsRouter);
+app.use("/api/v1/jobs", rateLimiter({
+  windowMS: 10 * 60 * 1000, // 10 min
+  max: 5, // allow only 5 req for each IP within 10min;
+}), authorizationMiddleware, jobsRouter);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
 // error handling middleware
