@@ -2,17 +2,17 @@ require("dotenv").config();
 // require("./models/jobModel");
 
 const express = require("express");
+const cookieParser = require("cookie-parser");
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+const connectDB = require("./db/connect");
 
 const cors = require("cors"); // cross-origin-resource-sharing;
 const helmet = require("helmet");
 // const xssClean = require("xss-clean");
 const {xss} = require("express-xss-sanitizer");
 const rateLimiter = require("express-rate-limit");
-
-
-const app = express();
-const PORT = process.env.PORT || 5000;
-const connectDB = require("./db/connect");
 
 const swaggerUi = require("swagger-ui-express");
 const YAML = require("yamljs");
@@ -33,7 +33,9 @@ const jobsRouter = require("./routers/jobsRouter");
 
 // common middlewares
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.static("./public"));
+
 
 
 // security middlewares
@@ -43,11 +45,10 @@ app.use(express.static("./public"));
 // }))
 app.use(helmet()); // enhance security by setting various HTTP headers;
 app.use(cors({
-  origin: ["http://localhost:4000", "https://jobs-api-15.onrender.com"]
+  origin: ["http://localhost:4000"]
 })) // allow server to server communication;
 // app.use(xssClean()); // sanitize the user input such as req.body, req.params, req.query, req.header and so on to prevent from cross-site-scripting(xss). But this xss-clean lib is no longer supported, so we use express-xss-sanitizer;
 app.use(xss());
-
 
 // app.get("/hello", (req, res) => {
 //   // console.log(req.get("origin"));
@@ -61,6 +62,7 @@ app.use("/api/v1/jobs", rateLimiter({
   windowMS: 10 * 60 * 1000, // 10 min
   max: 5, // allow only 5 req for each IP within 10min;
 }), authorizationMiddleware, jobsRouter);
+
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 

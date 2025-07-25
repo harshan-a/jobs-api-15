@@ -12,16 +12,22 @@ Content-Type: application/json
 
 {
   "name": "_name",
-  "email": "example12@gmail.com",
+  "email": "example16@gmail.com",
   "password": "app"
 }
+
+
+###
+POST http://localhost:5000/api/v1/auth/refresh-token
+Content-Type: application/json
+Cookie: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODc2N2ExMzkxYjUyMmNjMDQ1NDM1YmIiLCJ1c2VyTmFtZSI6Il9uYW1lMSIsImlhdCI6MTc1MzQ1NjEyM30.nkLbVVD2Gy4A4UN7mVlyxww2wQBjO4ctaB6HhTc3r44; Max-Age=604800; Path=/; Expires=Fri, 01 Aug 2025 15:08:44 GMT; HttpOnly; Secure; SameSite=Strict
 
 
 
 // Get all jobs
 ### 
 GET http://localhost:5000/api/v1/jobs
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODc2N2ExMzkxYjUyMmNjMDQ1NDM1YmIiLCJ1c2VyTmFtZSI6Il9uYW1lMSIsImlhdCI6MTc1Mjk4ODA5OCwiZXhwIjoxNzUzMDc0NDk4fQ.8xkvLWOuF-SOuio5f-Gujmn5OVfwbyJYvZw7B2ZoVSU
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODc2N2ExMzkxYjUyMmNjMDQ1NDM1YmIiLCJ1c2VyTmFtZSI6Il9uYW1lMSIsImlhdCI6MTc1MzQxMjAwMSwiZXhwIjoxNzUzNDEyOTAxfQ.jEuRVk4N7CJqR1q7E0br3nJX9cDfYmPdakXib8M8b18
 
 
 // Create job

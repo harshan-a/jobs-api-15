@@ -1,14 +1,39 @@
 const User = require("../models/userModel");
+const RefToken = require("../models/refTokenModel");
 const {
   BadRequestError,
   UnauthorizedError,
 } = require("../errors");
+
+const jwt = require("jsonwebtoken");
 
 
 const {StatusCodes} = require("http-status-codes");
 // const bcrypt = require("bcryptjs");
 // const jwt = require("jsonwebtoken");
 
+const refToken = async (req, res) => {
+  // const token = req.body;
+  // console.log(req.header("Origin"));
+  const token = req.cookies.refreshToken;
+  if(!token) 
+    throw new BadRequestError("No Ref Token")
+
+  const refToken = await RefToken.findOne({token});
+  if(!refToken) 
+    throw new UnauthorizedError("Unauthorized Access");
+
+
+  jwt.verify(refToken.token, process.env.REFRESH_JWT_SECRET_KEY, (err, user) => {
+    if(err) 
+      throw new UnauthorizedError("Unauthorized Access")
+
+    const {userId, userName} = user;
+    const token = refToken.createJWTToken({userId, userName})
+    res.status(200).json({success: true, token});
+
+  })
+}
 
 const register = async (req, res) => {
   if(!req.body) 
@@ -31,19 +56,32 @@ const register = async (req, res) => {
 
   const user = await User.create(req.body);
   
-  const token = user.createJWTToken();
+  const accessToken = user.createJWTToken();
+  const refreshToken = user.createJWTRefToken();
 
   // console.log(user.getName());
 
-  res.status(StatusCodes.CREATED).json({success: true, token, data: user, msg: "Registered Successfully"});
+  await RefToken.deleteMany({});
+  await RefToken.create({token: refreshToken});
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true, 
+    sameSite: "Strict", //  "None" 
+    secure: true, // http = false, https = true
+    maxAge: 7 * 24 * 60 * 60 * 1000
+  })
+  
+  res.status(StatusCodes.CREATED).json({success: true, accessToken, data: user, msg: "Registered Successfully"});
 }
 
 
 const login = async (req, res) => {
+  
   if(!req.body) 
     throw new BadRequestError("Please, provide credentials");
 
   const {email, password} = req.body;
+  if(!email || !password) throw new BadRequestError("Please, provide email or password");
 
   const user = await User.findOne({email}, "+password");
   if(!user) 
@@ -52,10 +90,21 @@ const login = async (req, res) => {
   const passCheck = await user.checkPassword(password);
   if(!passCheck) 
     throw new UnauthorizedError("Incorrect Password");
+  
+  const accessToken = user.createJWTToken();
+  const refreshToken = user.createJWTRefToken();
 
-  const token = user.createJWTToken();
+  await RefToken.deleteMany({});
+  await RefToken.create({token: refreshToken});
 
-  res.status(StatusCodes.OK).json({success: true, token, data: user, msg: "Logged in Successfully"});
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: true, 
+    sameSite: "Strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000
+  })
+  
+  res.status(StatusCodes.OK).json({success: true, accessToken, data: user, msg: "Logged in Successfully"});
 }
 
-module.exports = {login, register};
+module.exports = {login, register, refToken};

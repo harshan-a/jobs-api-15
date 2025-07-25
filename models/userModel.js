@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     trim: true,
-    required: [true, "Please, provide username"],
+    required: [true, "Please, provide name"],
     minlength: [3, "Name require atleast 3 characters"],
     maxlength: [20, "Name should not exceed 20 characters"],
     match: [
@@ -71,6 +71,12 @@ userSchema.methods.createJWTToken = function() {
     {userId: this._id, userName: this.name}, 
     process.env.JWT_SECRET_KEY,
     {expiresIn: process.env.JWT_LIFETIME}
+  )
+}
+userSchema.methods.createJWTRefToken = function() {
+  return jwt.sign(
+    {userId: this._id, userName: this.name},
+    process.env.REFRESH_JWT_SECRET_KEY
   )
 }
 

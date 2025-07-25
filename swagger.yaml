@@ -31,7 +31,11 @@ paths:
       responses:
         '200':
           description: ''
-          headers: {}
+          headers: 
+            Set-Cookie:
+              schema:
+                type: string
+                example: refreshToken=abcde12345; Path=/; HttpOnly
       deprecated: false
       security: []
   /auth/register:
@@ -60,9 +64,25 @@ paths:
       responses:
         '200':
           description: ''
-          headers: {}
+          headers: 
+            Cookie:
+              schema:
+                type: string
+                example: refreshToken=abcde12345; Path=/; HttpOnly
       deprecated: false
       security: []
+  /auth/refresh-token:
+    post:
+      tags:
+      - Auth
+      summary: Refresh Token
+      operationId: RefreshToken
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
   /jobs:
     get:
       tags:
