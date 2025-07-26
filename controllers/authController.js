@@ -8,39 +8,58 @@ const {
 const jwt = require("jsonwebtoken");
 
 
-const {StatusCodes} = require("http-status-codes");
+const { StatusCodes } = require("http-status-codes");
 // const bcrypt = require("bcryptjs");
 // const jwt = require("jsonwebtoken");
 
-const refToken = async (req, res) => {
+const refToken = async (req, res, next) => {
   // const token = req.body;
   // console.log(req.header("Origin"));
   const token = req.cookies.refreshToken;
-  if(!token) 
-    throw new BadRequestError("No Ref Token")
+  if (!token)
+    throw new BadRequestError("No Refresh Token Found");
 
-  const refToken = await RefToken.findOne({token});
-  if(!refToken) 
-    throw new UnauthorizedError("Unauthorized Access");
+  const refToken = await RefToken.findOne({ token });
+  if (!refToken)
+    throw new UnauthorizedError("Unauthorized Access. Token no longer used");
 
+  jwt.verify(refToken.token, process.env.REFRESH_JWT_SECRET_KEY, async (err, user) => {
+    try {
+      if (err)
+        throw new UnauthorizedError("Unauthorized Access. " + err.message);
 
-  jwt.verify(refToken.token, process.env.REFRESH_JWT_SECRET_KEY, (err, user) => {
-    if(err) 
-      throw new UnauthorizedError("Unauthorized Access")
+      const { userId, userName } = user;
+      const newRefToken = refToken.createJWTRefToken({ userId, userName });
+      const token = refToken.createJWTToken({ userId, userName })
 
-    const {userId, userName} = user;
-    const token = refToken.createJWTToken({userId, userName})
-    res.status(200).json({success: true, token});
+      if (userId !== String(refToken.userId)) {
+        throw new UnauthorizedError("Unauthorized Access. User id not match.");
+      }
+      refToken.token = newRefToken;
+      await refToken.save();
 
+      res.cookie("refreshToken", newRefToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "Strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      })
+
+      res.status(200).json({ success: true, token });
+
+    } catch (err) {
+      next(err);
+    }
   })
+
 }
 
 const register = async (req, res) => {
-  if(!req.body) 
+  if (!req.body)
     throw new BadRequestError("Please, provide credentials");
-  
+
   // const clientData = req.body;
-  
+
   // hash the password;
   // const {password} = clientData;
   // if(!password) 
@@ -54,57 +73,92 @@ const register = async (req, res) => {
 
   // clientData.password = hashedPassword;
 
-  const user = await User.create(req.body);
-  
+  let user = await User.create(req.body);
+
   const accessToken = user.createJWTToken();
   const refreshToken = user.createJWTRefToken();
 
   // console.log(user.getName());
 
-  await RefToken.deleteMany({});
-  await RefToken.create({token: refreshToken});
+  // const refToken = await RefToken.findOne({userId: user._id});
+  // if(refToken) {
+  //   refToken.token = refreshToken;
+  //   await refToken.save();
+
+  // } else {
+  //   await RefToken.create({token: refreshToken, userId: user._id});
+  // }
+
+  await RefToken.findOneAndUpdate({ userId: user._id }, { token: refreshToken }, {
+    runValidators: true,
+    new: true,
+    upsert: true,
+  });
 
   res.cookie("refreshToken", refreshToken, {
-    httpOnly: true, 
+    httpOnly: true,
     sameSite: "Strict", //  "None" 
     secure: true, // http = false, https = true
     maxAge: 7 * 24 * 60 * 60 * 1000
   })
-  
-  res.status(StatusCodes.CREATED).json({success: true, accessToken, data: user, msg: "Registered Successfully"});
+
+
+  user = user.toObject();
+  delete user.password;
+  res.status(StatusCodes.CREATED).json({ success: true, accessToken, data: user, msg: "Registered Successfully" });
 }
 
-
 const login = async (req, res) => {
-  
-  if(!req.body) 
+  if (!req.body)
     throw new BadRequestError("Please, provide credentials");
 
-  const {email, password} = req.body;
-  if(!email || !password) throw new BadRequestError("Please, provide email or password");
+  const { email, password } = req.body;
+  if (!email || !password) throw new BadRequestError("Please, provide email or password");
 
-  const user = await User.findOne({email}, "+password");
-  if(!user) 
+  let user = await User.findOne({ email }, "+password");
+  if (!user)
     throw new UnauthorizedError("User not found");
 
   const passCheck = await user.checkPassword(password);
-  if(!passCheck) 
+  if (!passCheck)
     throw new UnauthorizedError("Incorrect Password");
-  
+
   const accessToken = user.createJWTToken();
   const refreshToken = user.createJWTRefToken();
 
-  await RefToken.deleteMany({});
-  await RefToken.create({token: refreshToken});
+
+
+  // const refToken = await RefToken.findOne({userId: user._id});
+  // if(refToken) {
+  //   refToken.token = refreshToken;
+  //   await refToken.save();
+
+  // } else {
+  //   await RefToken.create({token: refreshToken, userId: user._id});
+  // }
+  await RefToken.findOneAndUpdate({ userId: user._id }, { token: refreshToken }, {
+    runValidators: true,
+    new: true,
+    upsert: true,
+  });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: true, 
+    secure: true,
     sameSite: "Strict",
     maxAge: 7 * 24 * 60 * 60 * 1000
   })
-  
-  res.status(StatusCodes.OK).json({success: true, accessToken, data: user, msg: "Logged in Successfully"});
+
+
+  user = user.toObject();
+  // const obj = {};
+  // for(const field in user) {
+  //   if(field === "password") continue;
+  //   obj[field] = user[field];
+  // }
+  delete user.password;
+
+  res.status(StatusCodes.OK).json({ success: true, accessToken, data: user, msg: "Logged in Successfully" });
 }
 
-module.exports = {login, register, refToken};
+module.exports = { login, register, refToken };

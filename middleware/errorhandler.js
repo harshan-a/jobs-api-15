@@ -2,7 +2,7 @@ const {StatusCodes} = require("http-status-codes");
 // const {CustomError} = require("../errors");
 
 const errorHandlerMiddlerware = (err, req, res, next) => {
-  console.log(err);
+  // console.log(err);
 
   const customError = {
     msg: err.message || "Something went wrong, please try again later",
